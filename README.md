@@ -1,4 +1,4 @@
-# Project Title
+# Golang
 
 This is a file about my project in learning more about the Golang programming language
 
