@@ -21,7 +21,7 @@ func main() {
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("view.html"))
+	tmpl := template.Must(template.ParseFiles("Multiple/multiple.html"))
 	if err := tmpl.Execute(w, nil); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -44,6 +44,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		if err == io.EOF {
 			break
 		}
+
 		fileLocation := filepath.Join(basePath, "files", part.FileName())
 		dst, err := os.Create(fileLocation)
 		if dst != nil {

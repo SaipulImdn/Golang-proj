@@ -13,7 +13,7 @@
 
                 var $self = $(this);
                 var files = $("#upload-file")[0].files;
-                var formData = new formData();
+                var formData = new FormData();
 
                 for (var i = 0; i < files.length; i++) {
                     formData.append("files", files[i]);
@@ -25,7 +25,7 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                }).then(function (res){
+                }).then(function (res) {
                     alert(res);
                     $("#user-form").trigger("reset");
                 }).catch(function (a){
