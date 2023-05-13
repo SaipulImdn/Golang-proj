@@ -7,23 +7,23 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/student", ActionStudent)
+	mux := http.DefaultServeMux
+
+	mux.HandleFunc("/student", ActionStudent)
+
+	var handler http.Handler = mux
+	handler = MiddlerwareAuth(handler)
+	handler = MiddlerwareAllowOnlyGet(handler)
 
 	server := new(http.Server)
-	server.Addr = ":8081"
+	server.Addr = ":9000"
+	server.Handler = handler
 
-	fmt.Println("server started at localhost:8081")
+	fmt.Println("server started at lcaolhost:9000")
 	server.ListenAndServe()
 }
 
 func ActionStudent(w http.ResponseWriter, r *http.Request) {
-	if !Auth(w, r) {
-		return
-	}
-	if !AllowOnlyGET(w, r) {
-		return
-	}
-
 	if id := r.URL.Query().Get("id"); id != "" {
 		OutputJSON(w, SelectStudent(id))
 		return
@@ -97,4 +97,32 @@ func AllowOnlyGET(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	return true
+}
+
+func MiddlerwareAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, password, ok := r.BasicAuth()
+		if !ok {
+			w.Write([]byte(`something went wrong`))
+			return
+		}
+
+		isValid := (username == USERNAME) && (password == PASSWORD)
+		if !isValid {
+			w.Write([]byte(`wrong username/password`))
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func MiddlerwareAllowOnlyGet(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			w.Write([]byte("Only GET is allowed"))
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
