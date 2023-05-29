@@ -2,32 +2,31 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-
-	"html/template"
-	"net/http"
 )
 
 type M map[string]interface{}
 
-const CSRFTokenHeade = "X-CSRF-Token"
-const CSRFKey = "csrf"
+const CSRF_TOKEN_HEADER = "X-Csrf-Token"
+const CSRF_KEY = "csrf_token"
 
 func main() {
-	tmpl := template.Must(template.ParseGlob("./*html"))
+	tmpl := template.Must(template.ParseGlob("./*.html"))
 
 	e := echo.New()
 
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "header:" + CSRFTokenHeade,
-		ContextKey:  CSRFKey,
+		TokenLookup: "header:" + CSRF_TOKEN_HEADER,
+		ContextKey:  CSRF_KEY,
 	}))
 
 	e.GET("/index", func(c echo.Context) error {
 		data := make(M)
-		data[CSRFKey] = c.Get(CSRFKey)
+		data[CSRF_KEY] = c.Get(CSRF_KEY)
 		return tmpl.Execute(c.Response(), data)
 	})
 
